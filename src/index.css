@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'morabba-medium';
+    src: url('./assets/fonts/Morabba-Medium.woff2');
+  }
+
+
+  @font-face {
+    font-family: 'morabba';
+    src: url('./assets/fonts/Morabba-Light.woff2');
+  }
+  
+
+  @font-face {
+    font-family: 'morabba-bold';
+    src: url('./assets/fonts/Morabba-Bold.woff2');
+  }
+
+  @font-face {
+    font-family: 'kalame-light';
+    src: url('./assets/fonts/Kalameh-Light.ttf');
+  }
+
+  @font-face {
+    font-family: 'kalame-medium';
+    src: url('./assets/fonts/Kalameh-Medium.ttf');
+  }
+
+  @font-face {
+    font-family: 'kalame-regular';
+    src: url('./assets/fonts/Kalameh-Regular.ttf');
+  }
+}
+
+body {
+  background-color: rgb(240, 240, 240);
+}
+
+
