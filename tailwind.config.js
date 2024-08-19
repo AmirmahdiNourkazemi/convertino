@@ -8,7 +8,7 @@ export default withMT({
   theme: {
     extend: {
       colors: {
-        'text-base': '#9C73F7',
+        'color-base': '#9C73F7',
       },
       fontFamily: {
         'morabba': ['morabba', 'serif'],
