@@ -3,7 +3,7 @@ import { MegaMenuDefault } from "../components/Navbar";
 import Convertor from "../components/convertor";
 import Emoji from "../assets/images/emoji.json";
 import Lottie from "lottie-react";
-
+import Footer from "../components/Footer";
 function Home() {
   return (
   <div className="relative">
@@ -24,8 +24,12 @@ function Home() {
       <div className="flex justify-center">
         <Convertor />
       </div>
+      <div className="flex justify-center">
+      <Footer/>
+      </div>
     </>
   </div>
+
   );
 }
 
