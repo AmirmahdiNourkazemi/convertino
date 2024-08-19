@@ -1,8 +1,15 @@
-import { Card, CardBody, Typography, Button, Select, Option } from "@material-tailwind/react";
+import {
+  Card,
+  CardBody,
+  Typography,
+  Button,
+  Select,
+  Option,
+} from "@material-tailwind/react";
 import React, { useState } from "react";
 import Lottie from "lottie-react";
 import Upload from "../assets/images/upload.json";
-
+import ImageTracer from "imagetracerjs"; // Import ImageTracer
 export default function Convertor() {
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -37,9 +44,13 @@ export default function Convertor() {
 
   const processFile = (file) => {
     setFile(file);
-    if (file && (file.type.startsWith("image/") || file.name.endsWith(".svg"))) {
+    if (
+      file &&
+      (file.type.startsWith("image/") || file.name.endsWith(".svg"))
+    ) {
       setIsImage(true);
-      const format = file.type === "image/svg+xml" ? "svg" : file.type.split("/")[1];
+      const format =
+        file.type === "image/svg+xml" ? "svg" : file.type.split("/")[1];
       setImageFormat(format);
     } else {
       setIsImage(false);
@@ -60,31 +71,53 @@ export default function Convertor() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const img = new Image();
-      img.src = e.target.result;
+    if (targetFormat === "svg") {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
 
-      img.onload = function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-
-        const mimeType = `image/${targetFormat}`;
-        const convertedDataUrl = canvas.toDataURL(mimeType);
-
-        // Trigger download
-        const a = document.createElement("a");
-        a.href = convertedDataUrl;
-        a.download = `converted.${targetFormat}`;
-        a.click();
+        img.onload = function () {
+          // Convert image to SVG using ImageTracer
+          ImageTracer.imageToSVG(img.src, (svgstr) => {
+            // Trigger download
+            const a = document.createElement("a");
+            a.href =
+              "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgstr);
+            a.download = `converted.svg`;
+            a.click();
+          });
+        };
       };
-    };
+      reader.readAsDataURL(file);
+    } else {
+      // For other formats, use the canvas method as before
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
 
-    reader.readAsDataURL(file);
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+
+          const mimeType = `image/${targetFormat}`;
+          const convertedDataUrl = canvas.toDataURL(mimeType);
+
+          // Trigger download
+          const a = document.createElement("a");
+          a.href = convertedDataUrl;
+          a.download = `converted.${targetFormat}`;
+          a.click();
+        };
+      };
+
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -98,8 +131,40 @@ export default function Convertor() {
     >
       <CardBody>
         <div className="flex justify-center flex-col items-center">
-          {!isImage && (
+          {
             <>
+              {file && isImage && (
+                <div className="flex flex-row items-center">
+                  <Typography className="mt-3 text-center text-sm md:text-lg text-gray-600">
+                    فایل انتخاب شده: {file.name} ({imageFormat.toUpperCase()})
+                  </Typography>
+                  <Select
+                    label="تبدیل به فرمت"
+                    className="font-kalame-medium border border-deep-purple-500"
+                    value={targetFormat}
+                    onChange={(e) => setTargetFormat(e)}
+                  >
+                    {getSuggestedFormats().map((format) => (
+                      <Option key={format} value={format}>
+                        {format.toUpperCase()}
+                      </Option>
+                    ))}
+                  </Select>
+                  <Button
+                    variant="gradient"
+                    color="deep-purple"
+                    className="flex justify-center items-center gap-3 mt-5 w-[100%] md:w-[100%]"
+                    onClick={handleConvert}
+                  >
+                    <div className="flex items-center gap-3 justify-center">
+                      <Typography className="font-kalame-medium text-sm">
+                        تبدیل
+                      </Typography>
+                    </div>
+                  </Button>
+                </div>
+              )}
+
               <Lottie
                 animationData={Upload}
                 loop={true}
@@ -141,33 +206,7 @@ export default function Convertor() {
                 onChange={handleFileSelect}
               />
             </>
-          )}
-          {file && isImage && (
-            <div className="flex flex-col items-center">
-              <Typography className="mt-3 text-center text-sm md:text-lg text-gray-600">
-                فایل انتخاب شده: {file.name} ({imageFormat.toUpperCase()})
-              </Typography>
-              <Select label="تبدیل به فرمت" className="font-kalame-medium border border-deep-purple-500" value={targetFormat} onChange={(e) => setTargetFormat(e)}>
-                {getSuggestedFormats().map((format) => (
-                  <Option key={format} value={format}>
-                    {format.toUpperCase()}
-                  </Option>
-                ))}
-              </Select>
-              <Button
-                variant="gradient"
-                color="deep-purple"
-                className="flex justify-center items-center gap-3 mt-5 w-[100%] md:w-[100%]"
-                onClick={handleConvert}
-              >
-                <div className="flex items-center gap-3 justify-center">
-                  <Typography className="font-kalame-medium text-sm">
-                   تبدیل
-                  </Typography>
-                </div>
-              </Button>
-            </div>
-          )}
+          }
         </div>
       </CardBody>
     </Card>
