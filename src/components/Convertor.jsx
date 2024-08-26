@@ -6,6 +6,7 @@ import {
   Select,
   Option,
   Progress,
+  IconButton,
 } from "@material-tailwind/react";
 import React, { useState } from "react";
 import Lottie from "lottie-react";
@@ -13,6 +14,7 @@ import Upload from "../assets/images/upload.json";
 import ImageTracer from "imagetracerjs";
 import Loading from "./loading";
 import jsPDF from "jspdf";
+import { XMarkIcon } from "@heroicons/react/16/solid";
 export default function Convertor() {
   const [files, setFiles] = useState([]);
   const [dragging, setDragging] = useState(false);
@@ -118,8 +120,8 @@ export default function Convertor() {
 
           img.onload = function () {
             const doc = new jsPDF();
-            doc.addImage(img, 'JPEG', 10, 10);
-            const pdfUrl = doc.output('datauristring');
+            doc.addImage(img, "JPEG", 10, 10);
+            const pdfUrl = doc.output("datauristring");
 
             setDownloadUrls((prevUrls) => ({
               ...prevUrls,
@@ -181,7 +183,25 @@ export default function Convertor() {
       a.click();
     }
   };
-
+  const handleFileRemove = (index) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    setLoadingFiles((prevLoading) => {
+      const newLoading = { ...prevLoading };
+      delete newLoading[index];
+      return newLoading;
+    });
+    setProgressFiles((prevProgress) => {
+      const newProgress = { ...prevProgress };
+      delete newProgress[index];
+      return newProgress;
+    });
+    setDownloadUrls((prevUrls) => {
+      const newUrls = { ...prevUrls };
+      delete newUrls[index];
+      return newUrls;
+    });
+  };
+  
   return (
     <>
       <div dir="ltr" className="flex flex-col justify-center items-center m-6">
@@ -189,51 +209,69 @@ export default function Convertor() {
           <>
             <Card
               key={index}
-              className="flex flex-row items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 "
+              className="flex flex-col md:flex-row items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 "
             >
-              <Button
-                variant="gradient"
-                color="deep-purple"
-                className="flex justify-center md:w-20 md:h-10 h-10 w-10 font-kalame-light font-bold tracking-widest text-center"
-                loading={loadingFiles[index]}
-                onClick={
-                  downloadUrls[index]
-                    ? () => handleDownload(index)
-                    : () => handleConvert(index)
-                }
-              >
-                {downloadUrls[index] ? "دانلود" : "تبدیل"}
-              </Button>
+              <IconButton size="sm" color="deep-purple"  onClick={() => handleFileRemove(index)} variant="outlined">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="size-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </IconButton>
+              <div className="flex flex-row items-center md:gap-3 gap-2 justify-center md:p-2 p-0">
+                <Button
+                  variant="gradient"
+                  color={downloadUrls[index] ? "green" : "deep-purple"}
+                  className="flex justify-center md:w-20 md:h-10 h-10 w-10 font-kalame-light font-bold tracking-widest text-center"
+                  loading={loadingFiles[index]}
+                  onClick={
+                    downloadUrls[index]
+                      ? () => handleDownload(index)
+                      : () => handleConvert(index)
+                  }
+                >
+                  {downloadUrls[index] ? "دانلود" : "تبدیل"}
+                </Button>
 
-              <Select
-                color="purple"
-                label="انتخاب فرمت"
-                dir="ltr"
-                labelProps={{ className: "font-kalame-medium text-xs" }}
-                className="text-left font-kalame-medium text-xs md:text-sm"
-                value={fileItem.targetFormat}
-                onChange={(e) => handleTargetFormatChange(index, e)}
-              >
-                {getSuggestedFormats(fileItem.format).map((format) => (
-                  <Option
-                    key={format}
-                    value={format}
-                    className="outline-none outline-offset-0"
-                  >
-                    {format.toUpperCase()}
-                  </Option>
-                ))}
-              </Select>
-              <Typography className="text-center font-kalame-regular font-black text-xs md:text-sm">
-                به
-              </Typography>
-              <Typography className="text-center text-color-base font-kalame-regular font-black text-xs md:text-sm">
-                {fileItem.format.toUpperCase()}
-                {/* {fileItem.name.toUpperCase()} */}
-              </Typography>
-              <Typography className="text-center font-kalame-regular font-black text-xs md:text-sm">
-                تبدیل
-              </Typography>
+                <Select
+                  color="purple"
+                  label="انتخاب فرمت"
+                  dir="ltr"
+                  labelProps={{ className: "font-kalame-medium text-xs" }}
+                  className="text-left font-kalame-medium text-xs md:text-sm"
+                  value={fileItem.targetFormat}
+                  onChange={(e) => handleTargetFormatChange(index, e)}
+                >
+                  {getSuggestedFormats(fileItem.format).map((format) => (
+                    <Option
+                      key={format}
+                      value={format}
+                      className="outline-none outline-offset-0"
+                    >
+                      {format.toUpperCase()}
+                    </Option>
+                  ))}
+                </Select>
+                <Typography className="text-center font-kalame-regular font-black text-xs md:text-sm">
+                  به
+                </Typography>
+                <Typography className="text-center text-color-base font-kalame-regular font-black text-xs md:text-sm">
+                  {fileItem.format.toUpperCase()}
+                  {/* {fileItem.name.toUpperCase()} */}
+                </Typography>
+                <Typography className="text-center font-kalame-regular font-black text-xs md:text-sm">
+                  تبدیل
+                </Typography>
+              </div>
             </Card>
 
             {loadingFiles[index] ? (
@@ -306,7 +344,7 @@ export default function Convertor() {
   );
 
   function getSuggestedFormats(currentFormat) {
-    const formats = ["jpeg", "png", "webp", "bmp", "svg" , "pdf"];
+    const formats = ["jpeg", "png", "webp", "bmp", "svg", "pdf"];
     return formats.filter((format) => format !== currentFormat);
   }
 }
