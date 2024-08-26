@@ -53,8 +53,7 @@ export default function Convertor() {
     const validFiles = selectedFiles.filter(
       (file) =>
         file.type.startsWith("image/") ||
-        file.name.endsWith(".svg") ||
-        file.type === "application/pdf"
+        file.name.endsWith(".svg")
     );
     const newFiles = validFiles.map((file) => ({
       file,
@@ -356,11 +355,8 @@ export default function Convertor() {
   );
 
   function getSuggestedFormats(currentFormat) {
-    const formats = ["jpeg", "png", "webp", "bmp", "svg"];
-    if (currentFormat === "pdf") {
-      return formats; // Only image formats for PDF conversion
-    }
-    return formats.concat("pdf").filter((format) => format !== currentFormat);
+    const formats = ["jpeg", "png", "webp", "bmp", "svg" , "pdf"];
+    return formats.filter((format) => format !== currentFormat);
   }
 }
 const handleButtonClick = () => {
