@@ -15,6 +15,8 @@ import ImageTracer from "imagetracerjs";
 import Loading from "./loading";
 import jsPDF from "jspdf";
 import { XMarkIcon } from "@heroicons/react/16/solid";
+import { getDocument } from "pdfjs-dist";
+
 export default function Convertor() {
   const [files, setFiles] = useState([]);
   const [dragging, setDragging] = useState(false);
@@ -49,7 +51,10 @@ export default function Convertor() {
 
   const processFiles = (selectedFiles) => {
     const validFiles = selectedFiles.filter(
-      (file) => file.type.startsWith("image/") || file.name.endsWith(".svg")
+      (file) =>
+        file.type.startsWith("image/") ||
+        file.name.endsWith(".svg") ||
+        file.type === "application/pdf"
     );
     const newFiles = validFiles.map((file) => ({
       file,
@@ -65,7 +70,7 @@ export default function Convertor() {
     setFiles(updatedFiles);
   };
 
-  const handleConvert = (index) => {
+  const handleConvert = async (index) => {
     const currentFile = files[index];
     if (!currentFile || !currentFile.targetFormat) {
       return;
@@ -112,7 +117,9 @@ export default function Convertor() {
           };
         };
         reader.readAsDataURL(currentFile.file);
-      } else if (currentFile.targetFormat === "pdf") {
+      } 
+      
+      else if (currentFile.targetFormat === "pdf") {
         const reader = new FileReader();
         reader.onload = function (e) {
           const img = new Image();
@@ -201,7 +208,7 @@ export default function Convertor() {
       return newUrls;
     });
   };
-  
+
   return (
     <>
       <div dir="ltr" className="flex flex-col justify-center items-center m-6">
@@ -209,9 +216,14 @@ export default function Convertor() {
           <>
             <Card
               key={index}
-              className="flex flex-col md:flex-row items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 "
+              className="flex flex-col md:flex-row items-end md:items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 "
             >
-              <IconButton size="sm" color="deep-purple"  onClick={() => handleFileRemove(index)} variant="outlined">
+              <IconButton
+                size="sm"
+                color="deep-purple"
+                onClick={() => handleFileRemove(index)}
+                variant="outlined"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -286,7 +298,7 @@ export default function Convertor() {
             dragging
               ? "border-purple-600 bg-deep-purple-50"
               : "border-purple-800"
-          } border-opacity-30 border-dashed mt-5 p-12 m-5 w-full`}
+          } border-opacity-30 border-dashed border-2 mt-5 p-12 m-5 w-full`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -344,8 +356,11 @@ export default function Convertor() {
   );
 
   function getSuggestedFormats(currentFormat) {
-    const formats = ["jpeg", "png", "webp", "bmp", "svg", "pdf"];
-    return formats.filter((format) => format !== currentFormat);
+    const formats = ["jpeg", "png", "webp", "bmp", "svg"];
+    if (currentFormat === "pdf") {
+      return formats; // Only image formats for PDF conversion
+    }
+    return formats.concat("pdf").filter((format) => format !== currentFormat);
   }
 }
 const handleButtonClick = () => {
