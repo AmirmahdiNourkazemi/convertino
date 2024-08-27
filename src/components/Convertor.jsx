@@ -16,6 +16,9 @@ import Loading from "./loading";
 import jsPDF from "jspdf";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import { getDocument } from "pdfjs-dist";
+import { convertImageToText } from "../api/api.js";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Convertor() {
   const [files, setFiles] = useState([]);
@@ -23,7 +26,8 @@ export default function Convertor() {
   const [loadingFiles, setLoadingFiles] = useState({});
   const [progressFiles, setProgressFiles] = useState({});
   const [downloadUrls, setDownloadUrls] = useState({});
-
+  const [text, setText] = useState({});
+  const notify = () => toast("متن کپی شد");
   const handleFileSelect = (event) => {
     const selectedFiles = Array.from(event.target.files);
     processFiles(selectedFiles);
@@ -51,9 +55,7 @@ export default function Convertor() {
 
   const processFiles = (selectedFiles) => {
     const validFiles = selectedFiles.filter(
-      (file) =>
-        file.type.startsWith("image/") ||
-        file.name.endsWith(".svg")
+      (file) => file.type.startsWith("image/") || file.name.endsWith(".svg")
     );
     const newFiles = validFiles.map((file) => ({
       file,
@@ -68,7 +70,11 @@ export default function Convertor() {
     updatedFiles[index].targetFormat = format;
     setFiles(updatedFiles);
   };
-
+  const handleCopyText = (index) => {
+    if (text[index]) {
+      navigator.clipboard.writeText(text[index]);
+    }
+  };
   const handleConvert = async (index) => {
     const currentFile = files[index];
     if (!currentFile || !currentFile.targetFormat) {
@@ -82,7 +88,7 @@ export default function Convertor() {
     }));
 
     // Simulate delay before processing
-    setTimeout(() => {
+    setTimeout(async () => {
       setProgressFiles((prevProgress) => ({
         ...prevProgress,
         [index]: 0,
@@ -116,19 +122,44 @@ export default function Convertor() {
           };
         };
         reader.readAsDataURL(currentFile.file);
-      } 
-      
-      else if (currentFile.targetFormat === "pdf") {
+      } else if (currentFile.targetFormat === "pdf") {
         const reader = new FileReader();
         reader.onload = function (e) {
           const img = new Image();
           img.src = e.target.result;
-
+      
           img.onload = function () {
             const doc = new jsPDF();
-            doc.addImage(img, "JPEG", 10, 10);
+      
+            // Get image dimensions
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+      
+            // Get page dimensions (A4 size)
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+      
+            // Calculate aspect ratio
+            const aspectRatio = imgWidth / imgHeight;
+      
+            // Calculate image dimensions to fit within page, maintaining aspect ratio
+            let newWidth = pageWidth - 20;  // 10 units margin on each side
+            let newHeight = newWidth / aspectRatio;
+      
+            // If the calculated height exceeds page height, adjust dimensions
+            if (newHeight > pageHeight - 20) {
+              newHeight = pageHeight - 20;  // 10 units margin on top and bottom
+              newWidth = newHeight * aspectRatio;
+            }
+      
+            // Center the image on the page
+            const xPos = (pageWidth - newWidth) / 2;
+            const yPos = (pageHeight - newHeight) / 2;
+      
+            // Add image to the PDF
+            doc.addImage(img, "JPEG", xPos, yPos, newWidth, newHeight);
             const pdfUrl = doc.output("datauristring");
-
+      
             setDownloadUrls((prevUrls) => ({
               ...prevUrls,
               [index]: {
@@ -136,7 +167,7 @@ export default function Convertor() {
                 url: pdfUrl,
               },
             }));
-
+      
             setLoadingFiles((prevLoading) => ({
               ...prevLoading,
               [index]: false,
@@ -144,6 +175,27 @@ export default function Convertor() {
           };
         };
         reader.readAsDataURL(currentFile.file);
+      }
+       else if (currentFile.targetFormat === "تبدیل عکس به متن") {
+        const response = await convertImageToText(currentFile.file);
+        setText((prevText) => ({
+          ...prevText,
+          [index]: response.text,
+        }));
+        setDownloadUrls((prevUrls) => ({
+          ...prevUrls,
+          [index]: {
+            name: `extracted-text-${index + 1}.txt`,
+            url: `data:text/plain;charset=utf-8,${encodeURIComponent(
+              response.text
+            )}`, // Adjust according to actual API response format
+          },
+        }));
+
+        setLoadingFiles((prevLoading) => ({
+          ...prevLoading,
+          [index]: false,
+        }));
       } else {
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -177,7 +229,7 @@ export default function Convertor() {
         };
         reader.readAsDataURL(currentFile.file);
       }
-    }, 3000); // Delay before starting processing
+    }, 2000); // Delay before starting processing
   };
 
   const handleDownload = (index) => {
@@ -205,6 +257,11 @@ export default function Convertor() {
       const newUrls = { ...prevUrls };
       delete newUrls[index];
       return newUrls;
+    });
+    setText((prevText) => {
+      const newText = { ...prevText };
+      delete newText[index];
+      return newText;
     });
   };
 
@@ -284,6 +341,38 @@ export default function Convertor() {
                 </Typography>
               </div>
             </Card>
+            {text[index] && (
+              <Card className="flex items-end md:items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 md:w-1/3">
+                <Typography className="font-kalame-light text-color-base text-sm ">
+                  {text[index]}
+                </Typography>
+                <IconButton
+                  size="sm"
+                  color="deep-purple"
+                  onClick={() => {
+                    handleCopyText(index);
+                    notify();
+                  }}
+                  variant="outlined"
+                  className="mx-auto flex justify-center items-center " // Adjust this for spacing
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="size-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                    />
+                  </svg>
+                </IconButton>
+              </Card>
+            )}
 
             {loadingFiles[index] ? (
               /* From Uiverse.io by jeremyssocial */
@@ -297,7 +386,7 @@ export default function Convertor() {
             dragging
               ? "border-purple-600 bg-deep-purple-50"
               : "border-purple-800"
-          } border-opacity-30 border-dashed border-2 mt-5 p-12 m-5 w-full`}
+          } border-opacity-30 border-dashed border-2 mt-5 p-12 m-5`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -350,12 +439,33 @@ export default function Convertor() {
             </div>
           </CardBody>
         </Card>
+        <ToastContainer
+          progressStyle={{
+            color: "black",
+            background: "purple",
+            borderRadius: "10px",
+          }}
+          rtl={true}
+          pauseOnFocusLoss={false}
+          pauseOnHover={false}
+          draggable={true}
+          bodyClassName={"text-color-base font-kalame-medium "}
+          position={"top-center"}
+        />
       </div>
     </>
   );
 
   function getSuggestedFormats(currentFormat) {
-    const formats = ["jpeg", "png", "webp", "bmp", "svg" , "pdf"];
+    const formats = [
+      "jpeg",
+      "png",
+      "webp",
+      "bmp",
+      "svg",
+      "pdf",
+      "تبدیل عکس به متن",
+    ];
     return formats.filter((format) => format !== currentFormat);
   }
 }

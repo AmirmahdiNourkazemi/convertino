@@ -12,6 +12,7 @@
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@material-tailwind/react": "^2.1.9",
+    "axios": "^1.7.5",
     "imagetracerjs": "^1.2.6",
     "jspdf": "^2.5.1",
     "lottie-react": "^2.4.0",
@@ -20,7 +21,10 @@
     "pdfjs-dist": "^4.5.136",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "react-toastify": "^10.0.5",
+    "sweetalert2": "^11.12.4",
+    "sweetalert2-react-content": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
