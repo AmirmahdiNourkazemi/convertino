@@ -272,11 +272,17 @@ export default function Convertor() {
           <>
             <Card
               key={index}
-              className="flex flex-col md:flex-row items-end md:items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 "
+              className="flex flex-col  items-end  md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 "
             >
-              <IconButton
+              <div className="flex flex-row md:items-center items-center">
+            
+              <Typography className="text-center font-kalame-regular font-black text-xs md:text-sm">
+              {fileItem.file.name}
+                </Typography>
+                <IconButton
                 size="sm"
                 color="deep-purple"
+                className="ml-2"
                 onClick={() => handleFileRemove(index)}
                 variant="outlined"
               >
@@ -295,6 +301,8 @@ export default function Convertor() {
                   />
                 </svg>
               </IconButton>
+              </div>
+             
               <div className="flex flex-row items-center md:gap-3 gap-2 justify-center md:p-2 p-0">
                 <Button
                   variant="gradient"
@@ -342,8 +350,11 @@ export default function Convertor() {
               </div>
             </Card>
             {text[index] && (
-              <Card className="flex items-end md:items-center md:gap-3 gap-2 justify-center md:p-5 p-2 my-2 md:w-1/3">
-                <Typography className="font-kalame-light text-color-base text-sm ">
+              <Card className="flex items-end md:gap-3 gap-2 md:p-5 p-2 my-2 md:w-1/3">
+                 <Typography className="font-kalame-light font-black text-sm ">
+                  {fileItem.file.name}   تبدیل شده فایل 
+                </Typography>
+                <Typography className="font-kalame-light font-black text-sm ">
                   {text[index]}
                 </Typography>
                 <IconButton
