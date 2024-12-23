@@ -397,7 +397,7 @@ export default function Convertor() {
             dragging
               ? "border-purple-600 bg-deep-purple-50"
               : "border-purple-800"
-          } border-opacity-30 border-dashed border-2 mt-5 p-12 m-5`}
+          } border-opacity-30 border-dashed border-2 mt-5 p-12 m-5 w-80 md:w-96 h-80 md:h-96`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -408,15 +408,15 @@ export default function Convertor() {
                 <Lottie
                   animationData={Upload}
                   loop={true}
-                  className="w-[80%] md:w-[20%]"
+                  className="w-[70%] md:w-[70%]"
                 />
-                <Typography className="mt-3 font-kalame-medium text-color-base text-sm md:text-3xl">
+                <Typography className="mt-3 font-kalame-medium text-color-base text-sm md:text-xl">
                   فایل‌ها رو اینجا بارگزاری کن
                 </Typography>
                 <Button
                   variant="gradient"
                   color="deep-purple"
-                  className="flex justify-center items-center gap-3 mt-5 w-[100%] md:w-[40%]"
+                  className="flex justify-center items-center gap-3 mt-5 w-[100%] md:w-[100%]"
                   onClick={handleButtonClick}
                 >
                   <div className="flex items-center gap-3 justify-center">
@@ -426,7 +426,7 @@ export default function Convertor() {
                       viewBox="0 0 24 24"
                       strokeWidth={2}
                       stroke="currentColor"
-                      className="h-5 w-5"
+                      className="h-8 w-6"
                     >
                       <path
                         strokeLinecap="round"
@@ -434,7 +434,7 @@ export default function Convertor() {
                         d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
                       />
                     </svg>
-                    <Typography className="font-kalame-medium text-sm">
+                    <Typography className="font-kalame-medium text-xs md:text-sm">
                       انتخاب فایل‌ها
                     </Typography>
                   </div>
