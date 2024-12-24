@@ -9,6 +9,7 @@ import ImageContent1 from "../components/ui/imageContent1";
 import ImageContent2 from "../components/ui/imageContent2";
 import ImageContent3 from "../components/ui/imageContent3";
 import Starter from "../assets/images/pic4.svg";
+import { TableWithStripedRows } from "../components/ui/TableContent";
 function Home() {
   return (
   <div className="relative">
@@ -39,6 +40,7 @@ function Home() {
       <ImageContent1/>
       <ImageContent2/>
       <ImageContent3/>
+      <TableWithStripedRows/>
       <Footer/>
       <div className="flex justify-center">
      
