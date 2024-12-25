@@ -23,7 +23,7 @@ const Footer = () => {
               </h6>
               <p className="font-irm text-xs sm:text-sm text-justify text-blue-gray-800 max-w-96 leading-5">
               تبدیل عکس به متن <br /> 
-              حذف اشیا از عکس <br /> تبدیل عکس وب  <br /> تبدیل عکس به پی دی اف
+              حذف اشیا از عکس <br /> تبدیل عکس وب  <br /> تبدیل عکس به pdf
               </p>
             </div>
             <div className="grid grid-cols-2 md:flex md:gap-x-10">
